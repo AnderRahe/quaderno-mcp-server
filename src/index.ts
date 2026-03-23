@@ -14,6 +14,15 @@ if (!API_KEY || !API_URL) {
   process.exit(1);
 }
 
+// Validate API URL to prevent SSRF
+const parsedUrl = new URL(API_URL);
+if (!parsedUrl.hostname.endsWith("quadernoapp.com")) {
+  console.error(
+    "QUADERNO_API_URL must point to a *.quadernoapp.com domain."
+  );
+  process.exit(1);
+}
+
 const AUTH_HEADER =
   "Basic " + Buffer.from(`${API_KEY}:x`).toString("base64");
 
