@@ -1,32 +1,54 @@
-# Quaderno MCP Server
+<p align="center">
+  <h1 align="center">Quaderno MCP Server</h1>
+  <p align="center">
+    Connect any AI assistant to <a href="https://quaderno.io/">Quaderno</a>'s tax compliance engine via the <a href="https://modelcontextprotocol.io/">Model Context Protocol</a>.
+    <br />
+    Calculate taxes. Validate tax IDs. Create invoices. All from natural language.
+  </p>
+</p>
 
-A [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server that connects AI assistants to the [Quaderno](https://quaderno.io/) tax compliance API. Calculate taxes, validate tax IDs, manage contacts, and create invoices — all from your AI workflow.
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT" /></a>
+  <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/MCP-compatible-brightgreen.svg" alt="MCP Compatible" /></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.8-blue.svg" alt="TypeScript" /></a>
+</p>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+---
 
-## Why
+## The Problem
 
-Tax compliance is hard. Quaderno makes it easy — and this MCP server lets any AI assistant tap into Quaderno's tax engine. No more manual lookups for VAT rates, tax ID validation, or invoice creation.
+Tax compliance across borders is a nightmare. Different VAT rates per country, tax ID validation against government databases, reverse charge rules, digital services taxes... and your AI assistant can't help because it has no access to real-time tax data.
+
+## The Solution
+
+This MCP server gives any AI assistant (Claude, GPT, etc.) direct access to Quaderno's tax engine. Ask in plain English, get accurate, compliant answers.
+
+```
+You: "What tax should I charge for a SaaS sale to a customer in Spain?"
+AI:  IVA at 21% — status: taxable, currency: EUR
+```
 
 ## Tools
 
-| Tool | Description |
+| Tool | What it does |
 |------|-------------|
-| `calculate_tax` | Calculate applicable tax rate by country, postal code, and product type |
-| `validate_tax_id` | Validate VAT/GST/ABN numbers (EU, UK, Switzerland, Australia, NZ, Canada) |
-| `create_contact` | Create a customer or company contact |
-| `create_invoice` | Create a tax-compliant invoice with line items |
-| `list_invoices` | List and filter invoices by contact, state, or date |
+| **`calculate_tax`** | Real-time tax rate calculation by country, postal code, and product type |
+| **`validate_tax_id`** | Validate VAT/GST/ABN numbers against EU VIES, UK HMRC, and more |
+| **`create_contact`** | Create customers and companies with full billing details |
+| **`create_invoice`** | Generate tax-compliant invoices with automatic tax calculation |
+| **`list_invoices`** | Search and filter invoices by contact, status, or date |
 
 ## Quick Start
 
-### 1. Get your Quaderno API key
+### 1. Get your API key
 
-Sign up at [quaderno.io](https://quaderno.io/) (or use the [sandbox](https://sandbox-quadernoapp.com/) for testing) and get your API key from **Settings > API Keys**.
+Sign up at [quaderno.io](https://quaderno.io/) or create a free [sandbox account](https://sandbox-quadernoapp.com/) for testing. Find your API key in **Settings > API Keys**.
 
-### 2. Configure Claude Desktop
+### 2. Configure for Claude Desktop
 
-Add this to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS or `%APPDATA%\Claude\claude_desktop_config.json` on Windows):
+Add to your config file:
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
 {
@@ -35,59 +57,73 @@ Add this to your Claude Desktop config (`~/Library/Application Support/Claude/cl
       "command": "node",
       "args": ["/path/to/quaderno-mcp-server/dist/index.js"],
       "env": {
-        "QUADERNO_API_KEY": "your_api_key",
-        "QUADERNO_API_URL": "https://YOUR_ACCOUNT.quadernoapp.com/api"
+        "QUADERNO_API_KEY": "sk_live_your_key_here",
+        "QUADERNO_API_URL": "https://your-account.quadernoapp.com/api"
       }
     }
   }
 }
 ```
 
-For the sandbox, use `https://YOUR_ACCOUNT.sandbox-quadernoapp.com/api` as the URL.
+> For sandbox testing, use `https://your-account.sandbox-quadernoapp.com/api`
 
 ### 3. Use with npx (coming soon)
 
 ```bash
-QUADERNO_API_KEY=your_key QUADERNO_API_URL=https://acct.quadernoapp.com/api npx quaderno-mcp-server
+QUADERNO_API_KEY=sk_live_xxx QUADERNO_API_URL=https://acct.quadernoapp.com/api npx quaderno-mcp-server
 ```
 
-## Tool Examples
+## Examples
 
-### Calculate tax for a sale to Germany
+### Tax calculation
 
-> "What's the tax rate for selling a SaaS subscription to a customer in Berlin, Germany?"
+> "What's the VAT rate for selling digital services in Spain?"
 
-The `calculate_tax` tool will be called with:
-- `to_country`: `DE`
-- `to_postal_code`: `10115`
-- `tax_code`: `saas`
+```json
+{
+  "country": "ES",
+  "name": "IVA",
+  "rate": 21.0,
+  "tax_code": "eservice",
+  "status": "taxable",
+  "currency": "EUR"
+}
+```
 
-Returns the applicable VAT rate (19%), tax name, and whether reverse charge applies.
+### Tax ID validation
 
-### Validate a VAT number
+> "Is this Spanish tax ID valid? ESB86412491"
 
-> "Is VAT number DE123456789 valid?"
+```json
+{
+  "valid": true
+}
+```
 
-The `validate_tax_id` tool will be called with:
-- `country`: `DE`
-- `tax_id`: `DE123456789`
+### Full invoicing flow
 
-Returns validation status and company details if available.
+> "Create a company contact for TechCorp in Madrid and invoice them 500 EUR for consulting"
 
-### Create a contact and invoice
+The AI will chain `create_contact` → `create_invoice` automatically, producing a tax-compliant invoice with the correct Spanish IVA applied.
 
-> "Create a contact for Acme Corp in Spain and invoice them €500 for consulting"
+## Supported Tax Jurisdictions
 
-1. `create_contact` with `kind: company`, `first_name: Acme Corp`, `country: ES`
-2. `create_invoice` with the returned contact ID, a line item for €500 consulting
+Quaderno supports **real-time tax calculation** for 200+ countries and tax ID validation for:
+
+- **EU**: All 27 member states (VAT via VIES)
+- **United Kingdom**: VAT via HMRC
+- **Switzerland**: UID
+- **Australia**: ABN/GST
+- **New Zealand**: GST
+- **Canada**: Quebec QST
 
 ## Development
 
 ```bash
-git clone https://github.com/YOUR_USER/quaderno-mcp-server.git
+git clone https://github.com/AnderRahe/quaderno-mcp-server.git
 cd quaderno-mcp-server
 npm install
-cp .env.example .env   # Add your API credentials
+cp .env.example .env   # Add your credentials
 npm run build
 ```
 
@@ -102,8 +138,15 @@ npx @modelcontextprotocol/inspector node ./dist/index.js
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `QUADERNO_API_KEY` | Yes | Your Quaderno private API key |
-| `QUADERNO_API_URL` | Yes | API base URL (e.g. `https://acct.quadernoapp.com/api`) |
+| `QUADERNO_API_URL` | Yes | Full API base URL including `/api` |
+
+## Built With
+
+- [Model Context Protocol SDK](https://github.com/modelcontextprotocol/typescript-sdk) — Server framework
+- [Quaderno API](https://developers.quaderno.io/api/) — Tax compliance engine
+- [Zod](https://zod.dev/) — Schema validation
+- TypeScript + stdio transport
 
 ## License
 
-MIT
+[MIT](LICENSE)
