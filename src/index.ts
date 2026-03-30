@@ -210,7 +210,7 @@ server.registerTool(
         .string()
         .optional()
         .describe("ISO 4217 currency code (e.g. USD, EUR). Defaults to account currency"),
-      items_attributes: z
+      items: z
         .array(
           z.object({
             description: z.string().describe("Item description"),

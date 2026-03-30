@@ -67,12 +67,6 @@ Add to your config file:
 
 > For sandbox testing, use `https://your-account.sandbox-quadernoapp.com/api`
 
-### 3. Use with npx (coming soon)
-
-```bash
-QUADERNO_API_KEY=sk_live_xxx QUADERNO_API_URL=https://acct.quadernoapp.com/api npx quaderno-mcp-server
-```
-
 ## Examples
 
 ### Tax calculation
