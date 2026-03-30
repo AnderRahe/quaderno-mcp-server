@@ -20,7 +20,7 @@
     "compliance",
     "model-context-protocol"
   ],
-  "author": "",
+  "author": "Alexander Rahe",
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.2",
